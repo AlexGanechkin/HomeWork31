@@ -1,16 +1,19 @@
 import csv
 import json
+import os
 
 
-def csv_to_json_from_mentor(csv_filename, json_filename):
+def csv_to_json_from_mentor(csv_file):
     result = []
-    with open(csv_filename, encoding='utf-8') as csvfile:
-        for row in csv.DictReader(csv_filename):
-            del row["id"]
+    with open(csv_file, encoding='utf-8') as csvfile:
+        for row in csv.DictReader(csvfile):
+            del row["Id"]
             result.append(row)
 
-    with open(json_filename, "w", encoding="utf-8") as jsonfile:
-        jsonfile.write(json.dumps(result, ensure_ascii=False))
+    return json.dumps(result, ensure_ascii=False)
+
+#    with open(json_filename, "w", encoding="utf-8") as jsonfile:
+#        jsonfile.write(json.dumps(result, ensure_ascii=False))
 
 
 def csv_to_json_from_me(csvFilename):
@@ -25,8 +28,10 @@ def csv_to_json_from_me(csvFilename):
     pos = 0
     header_pos = 0
     field = ""
+    DIR = os.path.dirname(os.path.abspath(__file__))
+    path_file = f"{DIR}\datasets\{csvFilename}"
 
-    with open(csvFilename, encoding='utf-8') as csvfile:
+    with open(path_file, encoding='utf-8') as csvfile:
         headers = csvfile.readline()[:-1].lower().split(",")
         for line in csvfile:
             lines += line + ','
@@ -46,7 +51,7 @@ def csv_to_json_from_me(csvFilename):
             header_pos += 1
             field = ""
             if header_pos > len(headers) - 1:
-                dictionary_dict.append(mydata)
+                dictionary_dict.append(mydata.copy())
                 header_pos = 0
         else:
             field += lines[pos]
@@ -63,7 +68,3 @@ def quotes(lines, pos):
         pos += 1
     pos += 1
     return field, pos
-
-
-
-print(csv_to_json("./datasets/ads.csv"))
