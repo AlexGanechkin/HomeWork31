@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
@@ -11,8 +11,8 @@ class Category(models.Model):
 class Publication(models.Model):
     name = models.CharField(max_length=200)
     author = models.CharField(max_length=50)
-    price = models.PositiveBigIntegerField()
-    description = models.CharField(max_length=1000, null=True, blank=True)
+    price = models.PositiveIntegerField()
+    description = models.TextField()
     address = models.CharField(max_length=200, null=True, blank=True)
     is_published = models.BooleanField(default=False)
 

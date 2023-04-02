@@ -3,18 +3,29 @@ import json
 import os
 
 
-def csv_to_json_from_mentor(csv_file):
+def csv_to_json_from_mentor(csv_file, json_file, model):
     result = []
     with open(csv_file, encoding='utf-8') as csvfile:
         for row in csv.DictReader(csvfile):
             del row["Id"]
-            result.append(row)
 
-    return json.dumps(result, ensure_ascii=False)
+            if "price" in row:
+                row["price"] = int(row["price"])
 
-#    with open(json_filename, "w", encoding="utf-8") as jsonfile:
-#        jsonfile.write(json.dumps(result, ensure_ascii=False))
+            if "is_published" in row:
+                if "is_published" == "TRUE":
+                    row["is_published"] = True
+                else:
+                    row["is_published"] = False
 
+            result.append({"model": model, "fields": row})
+
+    #return json.dumps(result, ensure_ascii=False)
+
+    with open(json_file, "w", encoding="utf-8") as jsonfile:
+        jsonfile.write(json.dumps(result, ensure_ascii=False))
+
+# Ментор переводит в json-файл, чтобы потом воспользоваться функцией джанго manage.py loaddata file.json
 
 def csv_to_json_from_me(csvFilename):
     """
