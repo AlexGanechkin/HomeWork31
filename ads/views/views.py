@@ -22,7 +22,7 @@ class LoadDatabaseView(View):
         json_list = json.loads(db_load.csv_to_json_from_me(filename))
 
         for item in json_list:
-            if filename == "categories.csv":
+            if filename == "category.csv":
                 category = Category()
                 category.name = item["name"]
                 category.save()
