@@ -6,8 +6,8 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
-import db_load
 from ads.models import Category, Publication
+from datasets import db_load
 
 
 def start_page(request):

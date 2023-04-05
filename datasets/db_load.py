@@ -102,4 +102,4 @@ def quotes(lines, pos):
     return field, pos
 
 
-csv_to_json_from_mentor('user.csv', 'user.json', 'ads.User')
+#csv_to_json_from_mentor('user.csv', 'user.json', 'ads.User')
