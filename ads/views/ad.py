@@ -40,7 +40,7 @@ class PublicationDetailView(DetailView):
             "description": self.object.description,
             "is_published": self.object.is_published,
             "category_id": self.object.category_id.id,
-            #"image": self.object.logo.url
+            "image": self.object.image.url if self.object.image else None
         }, safe=False, json_dumps_params={"ensure_ascii": False})
 
 
@@ -72,6 +72,30 @@ class PublicationCreateView(CreateView):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
+class PublicationUpdateImageView(UpdateView):
+    model = Publication
+    fields = ['image']
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        self.object.image = request.FILES['image']
+        self.object.save()
+
+        return JsonResponse({
+            "id": self.object.id,
+            "name": self.object.name,
+            "author_id": self.object.author_id.id,
+            "author": self.object.author_id.username,
+            "price": self.object.price,
+            "description": self.object.description,
+            "is_published": self.object.is_published,
+            "category_id": self.object.category_id.id,
+            "image": self.object.image.url if self.object.image else None
+        })
+
+
+@method_decorator(csrf_exempt, name="dispatch")
 class PublicationUpdateView(UpdateView):
     model = Publication
     fields = ['name', 'author_id', 'price', 'description', 'category_id']
@@ -95,8 +119,8 @@ class PublicationUpdateView(UpdateView):
             "price": self.object.price,
             "description": self.object.description,
             "is_published": self.object.is_published,
-            "category_id": self.object.category_id.id
-            #"image": self.object.
+            "category_id": self.object.category_id.id,
+            "image": self.object.image.url if self.object.image else None
         }, safe=False, json_dumps_params={"ensure_ascii": False})
 
 
