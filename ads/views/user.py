@@ -17,8 +17,6 @@ class UserListView(ListView):
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
 
-        self.object_list = self.object_list.prefetch_related('location_id').order_by("id")
-
         paginator = Paginator(self.object_list, settings.TOTAL_ON_PAGE)
         page_number = request.GET.get("page")
         page_list = paginator.get_page(page_number)
