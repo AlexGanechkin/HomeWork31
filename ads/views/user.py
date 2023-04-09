@@ -132,7 +132,7 @@ class UserCreateView(CreateView):
 @method_decorator(csrf_exempt, name="dispatch")
 class UserUpdateView(UpdateView):
     model = User
-    fields = ['username', 'password', 'first_name', 'last_name', 'age', 'locations']
+    fields = ['username', 'password', 'first_name', 'last_name', 'age', 'location_id']
 
     def patch(self, request, *args, **kwargs):
         super().post(request, *args, **kwargs)
