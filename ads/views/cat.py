@@ -40,7 +40,7 @@ class CategoryDetailView(DetailView):
 @method_decorator(csrf_exempt, name="dispatch")
 class CategoryCreateView(CreateView):
     model = Category
-    fields = ['name']
+    fields = ['name'] # можно указать что угодно, например, '__all__'
 
     def post(self, request, *args, **kwargs):
         request_data = json.loads(request.body)
@@ -77,6 +77,7 @@ class CategoryDeleteView(DeleteView):
     success_url = '/'
 
     def delete(self, request, *args, **kwargs):
+        # cat = self.get_object()
         super().delete(request, *args, **kwargs)
 
-        return JsonResponse({"status": "ok"})
+        return JsonResponse({"status": "ok"}) # {"id": cat.id}

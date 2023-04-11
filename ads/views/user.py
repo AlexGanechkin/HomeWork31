@@ -103,6 +103,13 @@ class UserCreateView(CreateView):
     def post(self, request, *args, **kwargs):
         request_data = json.loads(request.body)
 
+        # вариант наставника
+        # locations = request.pop('locations')
+        # new_user = User.objects.create(**request_data)
+        # for loc_name in locations:
+        #     loc, _ = Location.objects.get_or_create(name=loc_name)
+        #     new_user.location_id.add(loc)
+
         new_user = User()
         new_user.username = request_data['username']
         new_user.password = request_data['password']
@@ -138,12 +145,15 @@ class UserUpdateView(UpdateView):
         super().post(request, *args, **kwargs)
 
         request_data = json.loads(request.body)
-        self.object.username = request_data['username']
+        # добавляем if'ы
+        if "username" in request_data:
+            self.object.username = request_data.get('username')
         self.object.password = request_data['password']
         self.object.first_name = request_data['first_name']
         self.object.last_name = request_data['last_name']
         self.object.age = int(request_data['age'])
 
+        # self.object.location_id.clear() # чистим локации перед добавлением новых
         for location in request_data['locations']:
             location_obj, created = Location.objects.get_or_create(name=location)
             self.object.location_id.add(location_obj)

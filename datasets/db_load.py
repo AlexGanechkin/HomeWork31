@@ -21,23 +21,21 @@ def csv_to_json_from_mentor(csv_file, json_file, model):
             if "age" in row:
                 row["age"] = int(row["age"])
 
-            if "location_id" in row:
-                row["location_id"] = int(row["location_id"])
-
             if "lat" in row:
                 row["lat"] = float(row["lat"])
 
             if "lat" in row:
                 row["lng"] = float(row["lng"])
 
-            if "location_id" in row:
-                row["location_id"] = [int(row["location_id"])]
-
             if "is_published" in row:
-                if "is_published" == "TRUE":
+                if row["is_published"] == "TRUE":
                     row["is_published"] = True
                 else:
                     row["is_published"] = False
+
+            if "location_id" in row:
+                row["location"] = [row["location_id"]]
+                del row["location_id"]
 
             result.append({"model": model, "fields": row})
 
@@ -102,4 +100,9 @@ def quotes(lines, pos):
     return field, pos
 
 
+#csv_to_json_from_mentor('category.csv', 'category.json', 'ads.Category')
+#csv_to_json_from_mentor('ad.csv', 'ad.json', 'ads.Publication')
 #csv_to_json_from_mentor('user.csv', 'user.json', 'ads.User')
+#csv_to_json_from_mentor('location.csv', 'location.json', 'ads.Location')
+# Наставник создал отдельный app для пользователей и локаций
+# Затем все JSONы грузятся по loaddata

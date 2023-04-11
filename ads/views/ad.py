@@ -58,6 +58,7 @@ class PublicationDetailView(DetailView):
             "description": self.object.description,
             "is_published": self.object.is_published,
             "category_id": self.object.category_id.id,
+            # "address": [loc.name for loc in self.object.author_id.location_id.all()],
             "image": self.object.image.url if self.object.image else None
         }, safe=False, json_dumps_params={"ensure_ascii": False})
 
@@ -69,6 +70,11 @@ class PublicationCreateView(CreateView):
 
     def post(self, request, *args, **kwargs):
         request_data = json.loads(request.body)
+
+        # вариант наставника
+        # author = get_object_or_404(User, pk=request_data.pop('author_id'))
+        # category = get_object_or_404(Category, pk=request_data.pop('category_id'))
+        # new_publication = Publication.objects.create(author_id=author, category_id=category, **request_data)
 
         new_publication = Publication.objects.create(
             name=request_data["name"],
@@ -122,8 +128,12 @@ class PublicationUpdateView(UpdateView):
         super().post(request, *args, **kwargs)
 
         request_data = json.loads(request.body)
-        self.object.name = request_data['name']
-        self.object.author_id = get_object_or_404(User, pk=request_data['author_id'])
+
+        if "name" in request_data:
+            self.object.name = request_data.get('name')
+        if "author_id" in request_data:
+            self.object.author_id = get_object_or_404(User, pk=request_data.get('author_id'))
+        # дальше if'ы вставлять не стал
         self.object.price = int(request_data['price'])
         self.object.description = request_data['description']
         self.object.category_id = get_object_or_404(Category, pk=request_data['category_id'])
