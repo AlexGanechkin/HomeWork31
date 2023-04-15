@@ -7,9 +7,11 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from rest_framework.generics import CreateAPIView
 
 from Application import settings
 from ads.models import User, Location
+from ads.serializers import UserCreateSerializer
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -95,45 +97,9 @@ class UserDetailListView(View):
         return JsonResponse(response, safe=False, json_dumps_params={"ensure_ascii": False})
 
 
-@method_decorator(csrf_exempt, name="dispatch")
-class UserCreateView(CreateView):
-    model = User
-    fields = ['username', 'password', 'first_name', 'last_name', 'role', 'age', 'locations']
-
-    def post(self, request, *args, **kwargs):
-        request_data = json.loads(request.body)
-
-        # вариант наставника
-        # locations = request.pop('locations')
-        # new_user = User.objects.create(**request_data)
-        # for loc_name in locations:
-        #     loc, _ = Location.objects.get_or_create(name=loc_name)
-        #     new_user.location_id.add(loc)
-
-        new_user = User()
-        new_user.username = request_data['username']
-        new_user.password = request_data['password']
-        new_user.first_name = request_data['first_name']
-        new_user.last_name = request_data['last_name']
-        new_user.role = request_data['role']
-        new_user.age = int(request_data['age'])
-        new_user.save()
-
-        for location in request_data['locations']:
-            location_obj, created = Location.objects.get_or_create(name=location)
-            new_user.location_id.add(location_obj)
-
-        new_user.save()
-
-        return JsonResponse({
-            "id": new_user.id,
-            "username": new_user.username,
-            "first_name": new_user.first_name,
-            "last_name": new_user.last_name,
-            "role": new_user.role,
-            "age": new_user.age,
-            "locations": list(map(str, new_user.location_id.all()))
-        }, safe=False, json_dumps_params={"ensure_ascii": False})
+class UserCreateView(CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserCreateSerializer
 
 
 @method_decorator(csrf_exempt, name="dispatch")
