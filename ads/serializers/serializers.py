@@ -1,6 +1,8 @@
 from rest_framework import serializers
+from rest_framework.fields import SerializerMethodField, IntegerField
 
 from ads.models import Location, User
+from ads.serializers.location_serializers import LocationSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -9,6 +11,27 @@ class UserSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='name'
     )
+
+    class Meta:
+        model = User
+        exclude = ['password']
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    location_id = LocationSerializer(many=True)
+
+    class Meta:
+        model = User
+        exclude = ['password']
+
+
+# Вариант наставника по агрегации полей
+class UserListSerializer(serializers.ModelSerializer):
+    #total_ads = SerializerMethodField()
+
+    #def get_total_ads(self, user):
+    #    return user.ad_set.filter(is_published=True).count()
+    total_ads = IntegerField()
 
     class Meta:
         model = User

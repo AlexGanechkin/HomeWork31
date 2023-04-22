@@ -1,7 +1,11 @@
 
 from django.urls import path
+from rest_framework import routers
 
 from ads.views.ad import *
+
+router = routers.SimpleRouter()
+router.register('viewsets', AdviewSet)
 
 urlpatterns = [
     path('', PublicationListView.as_view()),
@@ -11,3 +15,5 @@ urlpatterns = [
     path('<int:pk>/delete/', PublicationDeleteView.as_view()),
     path('<int:pk>/image/', PublicationUpdateImageView.as_view()),
 ]
+
+urlpatterns += router.urls

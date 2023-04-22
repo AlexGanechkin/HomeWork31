@@ -6,9 +6,31 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
+from rest_framework.viewsets import ModelViewSet
 
 from Application import settings
 from ads.models import Publication, User, Category
+from ads.serializers.ad_serializers import AdSerializer, AdListSerializer, AdDetailSerializer
+
+
+# Вариант наставника
+class AdviewSet(ModelViewSet):
+    queryset = Publication.objects.order_by('-price')
+    default_serializer_class = AdSerializer
+    serializers = {
+        'list': AdListSerializer,
+        'retrieve': AdDetailSerializer
+    }
+
+    def get_serializer_class(self):
+        return self.serializers.get(self.action, self.default_serializer_class)
+
+    def list(self, request, *args, **kwargs):
+        ads = request.GET.getlist('id', [])
+        if ads:
+            self.queryset = self.queryset.filter(id__in=ads)
+
+        return super().list(request, *args, **kwargs)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -21,29 +43,28 @@ class PublicationListView(ListView):
         self.object_list = self.object_list.select_related('author_id').order_by("-price")
 
         # ищем объявления, содержащие искомый текст в наименовании объявления: ?text=text
-        text_request = request.GET.get('text', None)
+        text_request = request.GET.get('text')
 
         if text_request:
             self.object_list = self.object_list.filter(name__icontains=text_request)
 
         # ищем объявления, соответствующие id определенной категории: ?cat=1
-        category_request = request.GET.get('cat', None)
+        category_request = request.GET.get('cat')
         if category_request and category_request.isdigit():
             self.object_list = self.object_list.filter(category_id__id__exact=int(category_request))
 
         # ищем объявления с пользователями из определенной локации: ?location=location
-        location_request = request.GET.get('location', None)
+        location_request = request.GET.get('location')
         if location_request:
             self.object_list = self.object_list.filter(author_id__location_id__name__icontains=location_request)
 
         # ищем объявления по диапазону цен: ?price_from=100&price_to=1000
-        price_from_request = request.GET.get('price_from', None)
-        price_to_request = request.GET.get('price_to', None)
-        if price_from_request and price_to_request:
-            self.object_list = self.object_list.filter(price__range=(price_from_request, price_to_request))
-        elif price_from_request:
+        price_from_request = request.GET.get('price_from')
+        if price_from_request:
             self.object_list = self.object_list.filter(price__gte=price_from_request)
-        elif price_to_request:
+
+        price_to_request = request.GET.get('price_to')
+        if price_to_request:
             self.object_list = self.object_list.filter(price__lte=price_to_request)
 
         paginator = Paginator(self.object_list, settings.TOTAL_ON_PAGE)
