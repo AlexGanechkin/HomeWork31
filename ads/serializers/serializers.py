@@ -56,10 +56,13 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create(**validated_data)
+        #user.set_password(user.password)
 
         for location_id in self._locations:
             loc_obj, _ = Location.objects.get_or_create(name=location_id)
             user.location_id.add(loc_obj)
+
+        #user.save()
 
         return user
 
@@ -87,5 +90,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             for location_id in self._locations:
                 loc_obj, _ = Location.objects.get_or_create(name=location_id)
                 user.location_id.add(loc_obj)
+
+        user.set_password(user.password)
+        user.save()
 
         return user
