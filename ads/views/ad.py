@@ -6,24 +6,41 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.viewsets import ModelViewSet
 
 from Application import settings
 from ads.models import Publication, User, Category
 from ads.serializers.ad_serializers import AdSerializer, AdListSerializer, AdDetailSerializer
+from ads.serializers.permissions import IsOwner, IsStaff
 
 
 # Вариант наставника
 class AdviewSet(ModelViewSet):
     queryset = Publication.objects.order_by('-price')
     default_serializer_class = AdSerializer
+
+    default_permission = [AllowAny]
+    permissions = {
+        "retrieve": [IsAuthenticated],
+        "create": [IsAuthenticated],
+        "update": [IsAuthenticated, IsOwner | IsStaff],
+        "partial_update": [IsAuthenticated, IsOwner | IsStaff],
+        "destroy": [IsAuthenticated, IsOwner | IsStaff],
+    }
+
     serializers = {
         'list': AdListSerializer,
+        'create': AdListSerializer,
         'retrieve': AdDetailSerializer
     }
 
     def get_serializer_class(self):
         return self.serializers.get(self.action, self.default_serializer_class)
+
+    def get_permissions(self):
+        return [permission() for permission in self.permissions.get(self.action, self.default_permission)]
 
     def list(self, request, *args, **kwargs):
         ads = request.GET.getlist('id', [])
@@ -89,6 +106,11 @@ class PublicationListView(ListView):
         return JsonResponse(response, safe=False, json_dumps_params={"ensure_ascii": False})
 
 
+class PublicationDetailView(RetrieveAPIView):
+    queryset = Publication.objects.all()
+    serializer_class = AdDetailSerializer
+    permission_classes = [IsAuthenticated]
+"""
 @method_decorator(csrf_exempt, name="dispatch")
 class PublicationDetailView(DetailView):
     model = Publication
@@ -108,6 +130,7 @@ class PublicationDetailView(DetailView):
             # "address": [loc.name for loc in self.object.author_id.location_id.all()],
             "image": self.object.image.url if self.object.image else None
         }, safe=False, json_dumps_params={"ensure_ascii": False})
+"""
 
 
 @method_decorator(csrf_exempt, name="dispatch")

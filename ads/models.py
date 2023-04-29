@@ -33,13 +33,19 @@ class UserRoles(models.TextChoices):
 
 
 class User(AbstractUser):
-    first_name = models.CharField("Имя", max_length=150, blank=True)
+    first_name = models.CharField("Имя", max_length=150, blank=True)  # от наставника: можно удалить, т.к. есть в базовой модели
     last_name = models.CharField(max_length=150, verbose_name="Фамилия", blank=True)
     username = models.CharField("Никнейм", max_length=100, unique=True)
     password = models.CharField("Пароль", max_length=128)
     role = models.CharField(choices=UserRoles.choices, max_length=9, default='member')
     age = models.PositiveSmallIntegerField(null=True)
     location_id = models.ManyToManyField(Location)
+
+
+    # Еще один вариант от наставника по созданию хешированного пароля
+    #def save(self, *args, **kwargs):
+    #    self.set_password(raw_password=self.password)
+    #    super().save(*args, **kwargs)
 
     def __str__(self):
         return self.username
@@ -65,3 +71,16 @@ class Publication(models.Model):
     class Meta:
         verbose_name = 'Объявление'
         verbose_name_plural = 'Объявления'
+
+
+class Selection(models.Model):
+    name = models.CharField(max_length=100)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    items = models.ManyToManyField(Publication)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Подборка'
+        verbose_name_plural = 'Подборки'

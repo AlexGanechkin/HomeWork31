@@ -55,14 +55,14 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return super().is_valid(raise_exception=raise_exception)
 
     def create(self, validated_data):
-        user = User.objects.create(**validated_data)
-        #user.set_password(user.password)
+        passwd = validated_data.pop("password")
+        user = User.objects.create(**validated_data)  # От наставника
+        user.set_password(passwd)  # От наставника
+        user.save()  # От наставника
 
         for location_id in self._locations:
             loc_obj, _ = Location.objects.get_or_create(name=location_id)
             user.location_id.add(loc_obj)
-
-        #user.save()
 
         return user
 

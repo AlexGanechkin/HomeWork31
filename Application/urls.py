@@ -19,14 +19,15 @@ from django.urls import path, include
 
 from Application import settings
 from ads.urls.location import router
-from ads.views import views
+from ads.views.load_database import LoadDatabaseView, start_page
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include("rest_framework.urls")),
-    path('', views.start_page),
-    path('dbload/', views.LoadDatabaseView.as_view()),
+    path('', start_page),
+    path('dbload/', LoadDatabaseView.as_view()),
     path('ad/', include("ads.urls.ad")),
+    path('selection/', include("ads.urls.selection")),
     path('cat/', include("ads.urls.cat")),
     path('user/', include("ads.urls.user")),
     path('', include("ads.urls.location")),

@@ -2,6 +2,7 @@
 
 from django.db.models import Count, Q
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPIView
+from rest_framework.permissions import IsAuthenticated
 
 from ads.models import User
 from ads.serializers.serializers import UserCreateSerializer, UserSerializer, UserUpdateSerializer, UserListSerializer
