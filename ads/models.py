@@ -1,9 +1,13 @@
+from django.core.validators import MaxLengthValidator, MinLengthValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+from ads.validators import check_birth_date, check_email
 
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=10, unique=True, validators=[MinLengthValidator(5)])
 
     class Meta:
         verbose_name = 'Категория'
@@ -40,6 +44,8 @@ class User(AbstractUser):
     role = models.CharField(choices=UserRoles.choices, max_length=9, default='member')
     age = models.PositiveSmallIntegerField(null=True)
     location_id = models.ManyToManyField(Location)
+    birth_date = models.DateField(validators=[check_birth_date])
+    email = models.EmailField(unique=True, null=True, validators=[check_email])
 
 
     # Еще один вариант от наставника по созданию хешированного пароля
@@ -57,10 +63,10 @@ class User(AbstractUser):
 
 
 class Publication(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, validators=[MinLengthValidator(10)], null=False, blank=False)
     author_id = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     price = models.PositiveIntegerField()
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     is_published = models.BooleanField(default=False)
     image = models.ImageField(null=True, blank=True, upload_to='logos/')
     category_id = models.ForeignKey(Category, on_delete=models.CASCADE)
